@@ -1,0 +1,10 @@
+[
+    {
+        "name": "Example Server",
+        "host": "example.com",
+        "port": "22",
+        "username": "Alexander39",
+        "password": "qwerty123",
+        "ignore_dirs": ["trash", "trash2"]
+    }
+]

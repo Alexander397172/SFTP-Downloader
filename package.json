@@ -1,0 +1,25 @@
+{
+  "name": "sftp-downloader",
+  "version": "1.0.0",
+  "description": "Бекапер Ваших SFTP-серверов",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Alexander397172YT/SFTP-Downloader.git"
+  },
+  "author": "Alexander397172YT",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Alexander397172YT/SFTP-Downloader/issues"
+  },
+  "homepage": "https://github.com/Alexander397172YT/SFTP-Downloader#readme",
+  "dependencies": {
+    "archiver": "^7.0.1",
+    "fs": "^0.0.1-security",
+    "ping": "^0.4.4",
+    "ssh2-sftp-client": "^12.0.0"
+  }
+}
