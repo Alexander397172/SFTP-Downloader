@@ -2,7 +2,9 @@ require('events').EventEmitter.prototype._maxListeners = 100000000
 let Client = require('ssh2-sftp-client');
 const fs = require('fs');
 var archiver = require('archiver')
+var moment = require('moment')
 servers = JSON.parse(fs.readFileSync('./servers.json', 'utf8'));
+delete_after_days = JSON.parse(fs.readFileSync('./config.json', 'utf8'))["delete_after_days"]
 const ping = require('ping');
 const delay = ms => new Promise(resolve => setTimeout(resolve, ms))
 
@@ -25,7 +27,7 @@ async function download_path(sftp, directory, server) {
 async function checkConnection(ip) {
     goida = await ping.promise.probe(ip)
     if (goida.alive) {console.log(`Подключение к ${ip} есть!`); return true}
-    else {console.log("Нет подключения к интернету, повторная проверка через 10 секунд"); await delay(1000); checkConnection()}
+    else {console.log(`Нет подключения к ${ip}, повторная проверка через 10 секунд`); await delay(10000); checkConnection()}
 }
 
 
@@ -54,9 +56,21 @@ servers.forEach(async server => {
         if (!fs.existsSync(`./backups/${server["name"]}/`)) fs.mkdirSync(`./backups/${server["name"]}/`) 
         output = fs.createWriteStream(`./backups/${server["name"]}/${currentDate}.zip`)
         archive = archiver('zip')
-        output.on('close', function () {
+        output.on('close', async function () {
             console.log(`${server["name"]} заархивирован`)
             fs.rmSync(`./${server["name"]}/`, { recursive: true, force: true });
+            
+            if (delete_after_days == 0) return;
+
+            fs.readdir(`./backups/${server["name"]}`, (err, files) => {
+                for (filename of files) {
+                    diffDays = moment(currentDate, "DD.MM.YYYY").diff(moment(filename.slice(0, -4), "DD.MM.YYYY"), 'days');
+                    if (diffDays > delete_after_days) {
+                        fs.rmSync(`./backups/${server["name"]}/${filename}`, { recursive: true, force: true });
+                        console.log(`Удалён старый бекап: /${server["name"]}/${filename}`)
+                    }
+                }
+            })
         });
         archive.pipe(output)
         archive.directory(`./${server["name"]}/`, false)
